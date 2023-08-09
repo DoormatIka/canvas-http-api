@@ -14,8 +14,10 @@
     "typescript": "^5.1.6"
   },
   "dependencies": {
+    "@cwasm/webp": "^0.1.5",
     "canvas": "^2.11.2",
-    "express": "^4.18.2"
+    "express": "^4.18.2",
+    "node-fetch": "^3.3.2"
   },
   "type": "module"
 }
