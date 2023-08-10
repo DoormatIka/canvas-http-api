@@ -9,7 +9,7 @@ const app = express();
 const c = canvas.createCanvas(1280, 720);
 const ctx = c.getContext("2d");
 
-app.use(express.json());
+app.use(express.json({ limit: "20mb" }));
 
 const text = "Lorem ipsum dolor sit amet, "
     + "consectetur adipiscing elit. "
