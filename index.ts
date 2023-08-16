@@ -1,13 +1,12 @@
-import fs from "fs";
+import fs, { readFileSync, writeFileSync } from "fs";
 import canvas from "canvas";
 import url from "url";
 import express from "express";
 import fetch from "node-fetch";
-import { quote } from "./src/quote.js";
+import { quote, quoteAttachment } from "./src/quote.js";
+import { convertToPNG } from "./src/convert.js";
 
 const app = express();
-const c = canvas.createCanvas(1280, 720);
-const ctx = c.getContext("2d");
 
 app.use(express.json({ limit: "20mb" }));
 
@@ -16,34 +15,81 @@ const text = "Lorem ipsum dolor sit amet, "
     + "Morbi rhoncus dignissim ligula eget gravida. "
     + "Integer nec euismod leo. Quisque pharetra. ";
 const overlay = await canvas.loadImage("resources/frame/overlay_gradient.png");
-// const pfp = await canvas.loadImage("resources/frame/profile.png");
-
-/* TESTS
-const buffer = quote(c, ctx, text, "Alice", pfp, overlay);
-fs.writeFileSync(`./in.jpg`, buffer);
-const buffer2 = quote(c, ctx, "text", "Alice", pfp, overlay);
-fs.writeFileSync(`./in2.jpg`, buffer2);
-const buffer3 = quote(c, ctx, "Fellas, is it gay to be gay?", "Alice", pfp, overlay);
-fs.writeFileSync(`./in3.jpg`, buffer3);
-const buffer4 = quote(c, ctx, "Imma imma eat lunch, I compressed my gym time during my 1 hour break at school so I wouldn’t do anything later", "Alice", pfp, overlay);
-fs.writeFileSync(`./in4.jpg`, buffer4);
-const buffer5 = quote(c, ctx, `"The Lisa released in 1983, but just a year later, was the Super Bowl."
-This channel really captures the essence of losing focus during lecture for 3 minutes cause you thought you were following along.`, "ALice", pfp, overlay);
-fs.writeFileSync(`./in5.jpg`, buffer5);
-*/
-
 
 app.post("/quote", async (req, res) => {
-    const f = await fetch(req.body.url);
-    const convert = await fetch("http://localhost:3500/convertwebp", {
-        method: "POST",
-        body: await f.blob(),
-    });
-    const pfp = await canvas.loadImage(Buffer.from(await convert.arrayBuffer()));
-    const buffer = quote(c, ctx, req.body.text ?? text, req.body.author, pfp, overlay);
+    const c = canvas.createCanvas(1280, 720);
+    const ctx = c.getContext("2d");
+    const pfp_png = await convertToPNG(req.body.avatar_url);
+    const pfp = await canvas.loadImage(Buffer.from(await pfp_png.arrayBuffer()));
+
+    quote(ctx, req.body.text ?? text, req.body.author, pfp, overlay);
+
+    const buffer = c.toBuffer("image/jpeg", {
+        quality: 0.9,
+        progressive: false,
+        chromaSubsampling: false
+    })
     res.send(buffer);
 });
 
+app.post("/quote/img", async (req, res) => {
+    const c = canvas.createCanvas(1280, 720);
+    const ctx = c.getContext("2d");
+    const pfp_png = await convertToPNG(req.body.avatar_url);
+    const attachment_png = await convertToPNG(req.body.attachment_url);
+
+    const pfp = await canvas.loadImage(Buffer.from(await pfp_png.arrayBuffer()));
+    const attachment = await canvas.loadImage(Buffer.from(await attachment_png.arrayBuffer()));
+    quoteAttachment(c, ctx,
+        req.body.text ?? text,
+        req.body.author,
+        pfp, overlay,
+        attachment
+    );
+
+    const buffer = c.toBuffer("image/jpeg", {
+        quality: 0.9,
+        progressive: false,
+        chromaSubsampling: false
+    })
+    res.send(buffer);
+});
+/*
+async function canvasAlteria(
+    image: string,
+    file: string,
+    text: string
+) {
+    const c = canvas.createCanvas(1280, 720);
+    const ctx = c.getContext("2d");
+    const a = readFileSync(image);
+    const attachment_png = await fetch("http://localhost:3500/convertwebp", {
+        method: "POST",
+        body: a,
+        headers: {
+            "Content-Type": "application/octet-stream",
+        }
+    });
+    const attachment = await canvas.loadImage(Buffer.from(await attachment_png.arrayBuffer()));
+    quoteAttachment(c, ctx,
+        text,
+        "Alice",
+        pfp, overlay,
+        attachment
+    );
+    writeFileSync(file, c.toBuffer())
+}
+
+await canvasAlteria(
+    "resources/frame/satori_eye.jpg", 
+    "./test.png",
+    text
+);
+await canvasAlteria(
+    "resources/frame/junkosad_discolored.png",
+    "./test1.png",
+    "tnosnfdsklnf im losing it too");
+*/
 app.listen(4000, () => {
     console.log(`Connected to localhost:4000.`)
 });
