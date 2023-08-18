@@ -8,7 +8,6 @@ export function lilys_word_wrap(text: string, maxLetters: number) {
     for (const text of splitted_text) {
         if (current_word.length > maxLetters) {
             numerous.push(` ${current_word}`);
-            console.log(current_word);
             current_word = "";
         }
         current_word += ` ${text}`;
