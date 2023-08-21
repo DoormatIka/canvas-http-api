@@ -54,42 +54,7 @@ app.post("/quote/img", async (req, res) => {
     })
     res.send(buffer);
 });
-/*
-async function canvasAlteria(
-    image: string,
-    file: string,
-    text: string
-) {
-    const c = canvas.createCanvas(1280, 720);
-    const ctx = c.getContext("2d");
-    const a = readFileSync(image);
-    const attachment_png = await fetch("http://localhost:3500/convertwebp", {
-        method: "POST",
-        body: a,
-        headers: {
-            "Content-Type": "application/octet-stream",
-        }
-    });
-    const attachment = await canvas.loadImage(Buffer.from(await attachment_png.arrayBuffer()));
-    quoteAttachment(c, ctx,
-        text,
-        "Alice",
-        pfp, overlay,
-        attachment
-    );
-    writeFileSync(file, c.toBuffer())
-}
 
-await canvasAlteria(
-    "resources/frame/satori_eye.jpg", 
-    "./test.png",
-    text
-);
-await canvasAlteria(
-    "resources/frame/junkosad_discolored.png",
-    "./test1.png",
-    "tnosnfdsklnf im losing it too");
-*/
 app.listen(4000, () => {
     console.log(`Connected to localhost:4000.`)
 });
