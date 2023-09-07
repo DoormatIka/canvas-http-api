@@ -14,8 +14,8 @@ export function quote(
 
     // AUTO FONT RESIZE IN COMPARISON TO THE TEXT LENGTH NEEDS TO BE CALCULATED.
     ctx.font = `bold ${60}px Times New Roman`;
-    let last = 300 - (text.length * 2.5);
-    const a = lilys_word_wrap(text, 10);
+    let last = 300 - (text.length * 1.7);
+    const a = rlemons_fragmentText(ctx, text, 500);
 
     for (const s of a) {
         last += 65;
