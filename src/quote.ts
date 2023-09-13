@@ -1,5 +1,5 @@
 import canvas from "canvas";
-import { lilys_word_wrap, rlemons_fragmentText } from "./clip.js";
+import { crazy2be_word_wrap, crazy2be_word_wrap_paragraph, lilys_word_wrap, rlemons_fragmentText } from "./clip.js";
 
 export function quote(
     ctx: canvas.CanvasRenderingContext2D,
@@ -14,17 +14,16 @@ export function quote(
 
     // AUTO FONT RESIZE IN COMPARISON TO THE TEXT LENGTH NEEDS TO BE CALCULATED.
     ctx.font = `bold ${60}px Times New Roman`;
-    let last = 300 - (text.length * 1.7);
-    const a = rlemons_fragmentText(ctx, text, 500);
-
+    const a = crazy2be_word_wrap_paragraph(ctx, text, 450);
+    let last = 300 - (a.length * 25);
     for (const s of a) {
         last += 65;
         ctx.textAlign = "left";
         ctx.textBaseline = "middle";
-        ctx.fillText(s, 700, last, 900);
+        ctx.fillText(s, 750, last, 900);
     }
     ctx.font = "40px Times New Roman"
-    ctx.fillText(`- ${author}`, 900, last + 65, 900);
+    ctx.fillText(`- ${author}`, 1000, last + 65, 900);
 }
 
 export function quoteAttachment(
