@@ -33,7 +33,7 @@ export function quoteAttachment(
     author: string,
     pfp: canvas.Image,
     overlay: canvas.Image,
-    attachment: canvas.Image,
+    attachment: canvas.Image | canvas.Canvas,
 ) {
     ctx.font = `bold ${60}px Times New Roman`;
     let last = 450;
@@ -52,7 +52,7 @@ export function quoteAttachment(
     ctx.font = `${25}px Times New Roman`;
     ctx.fillText(`- ${author}`, 1100, last + 40);
 
-    const ratio = attachment.naturalWidth / attachment.naturalHeight;
+    const ratio = attachment.width / attachment.height;
     const width = 400;
     const height = width / ratio;
     ctx.globalAlpha = 0.9;

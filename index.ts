@@ -1,10 +1,7 @@
-import fs, { readFileSync, writeFileSync } from "fs";
 import canvas from "canvas";
-import url from "url";
 import express from "express";
-import fetch from "node-fetch";
 import { quote, quoteAttachment } from "./src/quote.js";
-import { convertToPNG } from "./src/convert.js";
+import { WEBPToCanvas, getImage } from "./src/helpers.js";
 
 const app = express();
 
@@ -19,12 +16,11 @@ const overlay = await canvas.loadImage("resources/frame/overlay_gradient.png");
 app.post("/quote", async (req, res) => {
     const c = canvas.createCanvas(1280, 720);
     const ctx = c.getContext("2d");
-    const pfp_png = await convertToPNG(req.body.avatar_url);
-    const pfp = await canvas.loadImage(Buffer.from(await pfp_png.arrayBuffer()));
+    const pfp = await canvas.loadImage(Buffer.from(await getImage(req.body.avatar_url)));
 
     quote(ctx, req.body.text ?? text, req.body.author, pfp, overlay);
-
-    const buffer = c.toBuffer("image/jpeg", {
+    
+	const buffer = c.toBuffer("image/jpeg", {
         quality: 0.9,
         progressive: false,
         chromaSubsampling: false
@@ -32,15 +28,25 @@ app.post("/quote", async (req, res) => {
     res.send(buffer);
 });
 
+/*
+	* {
+	* 	attachment_url: string,
+	* 	attachment_height: number,
+	* 	attachment_width: number,
+	* 	mimetype: string
+	* }
+	*/
 app.post("/quote/img", async (req, res) => {
     const c = canvas.createCanvas(1280, 720);
     const ctx = c.getContext("2d");
-    const pfp_png = await convertToPNG(req.body.avatar_url);
-    const attachment_png = await convertToPNG(req.body.attachment_url);
 
-    const pfp = await canvas.loadImage(Buffer.from(await pfp_png.arrayBuffer()));
-    const attachment = await canvas.loadImage(Buffer.from(await attachment_png.arrayBuffer()));
-    quoteAttachment(c, ctx,
+    const pfp = await canvas.loadImage(Buffer.from(await getImage(req.body.avatar_url)));
+	const mimetype: string = req.body.mimetype;
+    const attachment = mimetype.includes("image/webp")
+    	? await WEBPToCanvas(req.body.attachment_url, req.body.attachment_width, req.body.attachment_height)
+		: await canvas.loadImage(Buffer.from(await getImage(req.body.attachment_url)))
+
+	quoteAttachment(c, ctx,
         req.body.text ?? text,
         req.body.author,
         pfp, overlay,
