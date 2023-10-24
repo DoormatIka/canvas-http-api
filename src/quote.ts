@@ -36,9 +36,8 @@ export function quoteAttachment(
     attachment: canvas.Image | canvas.Canvas,
 ) {
     ctx.font = `bold ${60}px Times New Roman`;
-    let last = 450;
-    const a = lilys_word_wrap(text, 25);
-
+    let last = 500;
+    const a = crazy2be_word_wrap_paragraph(ctx, text, 450);
     ctx.drawImage(pfp, 0, 0, 720, 718);
     ctx.drawImage(overlay, 0, 0);
     ctx.fillStyle = "#d9d9d9";
@@ -59,7 +58,7 @@ export function quoteAttachment(
     ctx.drawImage(
         attachment, 
         (c.width - width) - 110, 
-        (c.height - height) - 270, 
+        (c.height - height) - 230, 
         width, 
         height);
     ctx.globalAlpha = 1;

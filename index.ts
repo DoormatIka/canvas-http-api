@@ -7,18 +7,16 @@ const app = express();
 
 app.use(express.json({ limit: "20mb" }));
 
-const text = "Lorem ipsum dolor sit amet, "
-    + "consectetur adipiscing elit. "
-    + "Morbi rhoncus dignissim ligula eget gravida. "
-    + "Integer nec euismod leo. Quisque pharetra. ";
 const overlay = await canvas.loadImage("resources/frame/overlay_gradient.png");
+
+app.get("/ping", async (req, res) => { res.send(true) });
 
 app.post("/quote", async (req, res) => {
     const c = canvas.createCanvas(1280, 720);
     const ctx = c.getContext("2d");
     const pfp = await canvas.loadImage(Buffer.from(await getImage(req.body.avatar_url)));
 
-    quote(ctx, req.body.text ?? text, req.body.author, pfp, overlay);
+    quote(ctx, req.body.text, req.body.author, pfp, overlay);
     
 	const buffer = c.toBuffer("image/jpeg", {
         quality: 0.9,
@@ -47,7 +45,7 @@ app.post("/quote/img", async (req, res) => {
 		: await canvas.loadImage(Buffer.from(await getImage(req.body.attachment_url)))
 
 	quoteAttachment(c, ctx,
-        req.body.text ?? text,
+        req.body.text,
         req.body.author,
         pfp, overlay,
         attachment
