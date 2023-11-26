@@ -94,12 +94,13 @@ export class TextArea {
 		return coords;
 	}
 	/*
-		* Resizing fonts
+		* Resizing fonts to f
 		*
 		*/
 	public auto_font_resize() {
 		const previousFont = this.ctx.font.toString();
 		const previousFontSizeMatch = previousFont.match(/(\d+)px/)?.[1];
+		const garbageStyle = previousFont.replace(`${previousFontSizeMatch}px`, "()");
 
 		let absolute_text_y_limit = this.absolute_text_y + this.relative_text_height;
 		let absolute_text_x_limit = this.absolute_text_x + this.relative_text_width;
@@ -111,25 +112,34 @@ export class TextArea {
 			: 20;
 
 		let wrapped: WordCoords[][] = [];
-		while (true) {
-			console.log(`outif fontsize: ${previousFontSize}, style: ${this.ctx.font}, text_y_limit: ${absolute_text_y_limit}`)
 
-			const garbageStyle = previousFont.replace(`${previousFontSizeMatch}px`, "()");
+		// a bodge to avoid the bouncing font sizes (50 => 49 => 50 => 49 ...)
+		for (let i = 0; i < 30; i++) {
+			/*
+			console.log(`fontsize: ${previousFontSize}, style: ${this.ctx.font}`);
+			console.log(`text_y_limit: ${absolute_text_y_limit}, text_y: ${absolute_y_limit}`);
+			console.log(`text_x_limit: ${absolute_text_x_limit}, text_x: ${absolute_x_limit}`);
+			*/
+
 			this.ctx.font = garbageStyle.replace("()", `${previousFontSize}px`);
 
-			if (absolute_text_x_limit < absolute_x_limit) {
-				console.log(`inif fontsize: ${previousFontSize}, style: ${this.ctx.font}, text_y_limit: ${absolute_text_y_limit}`)
-				previousFontSize += 3;
-				this.ctx.font = previousFont.replace(`${previousFontSizeMatch}px`, "()");
-				absolute_text_x_limit = this.absolute_text_x + this.relative_text_width;
-				continue;
-			}
-
+			// if the text box's Y limit exceeds the parent box's Y, make the font size smaller
 			if (absolute_text_y_limit >= absolute_y_limit) {
-				console.log(`inif fontsize: ${previousFontSize}, style: ${this.ctx.font}, text_y_limit: ${absolute_text_y_limit}`)
 				previousFontSize -= 3;
 				wrapped = this.wrap_words();
-				this.ctx.font = previousFont.replace(`${previousFontSizeMatch}px`, "()");
+				absolute_text_y_limit = this.absolute_text_y + this.relative_text_height;
+				continue;
+			}
+			// +100 as an attempt to loosen the restrictions to activate this if statement
+			//
+			// if text box's Y limit does not exceed the parent box's Y limit AND
+			// 		if text box's X limit does not exceed the parent box's X limit:
+			// 				make the font size bigger
+			if (absolute_text_y_limit + 100 < absolute_y_limit 
+					&& absolute_text_x_limit < absolute_x_limit) {
+				previousFontSize += 1;
+				wrapped = this.wrap_words();
+				absolute_text_x_limit = this.absolute_text_x + this.relative_text_width;
 				absolute_text_y_limit = this.absolute_text_y + this.relative_text_height;
 				continue;
 			}
@@ -137,7 +147,7 @@ export class TextArea {
 			break;
 		}
 		this.ctx.font = previousFont.replace(`${previousFontSizeMatch}px`, "()");
-		console.log(this.ctx.font, previousFontSize);
+		// console.log(this.ctx.font, previousFontSize);
 		return {wrapped, previousFontSize};
 	}
 	public adjust_text_for_centering(coords: WordCoords[][]) {

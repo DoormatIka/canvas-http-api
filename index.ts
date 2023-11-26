@@ -24,19 +24,19 @@ app.post("/quote", async (req, res) => {
 		const text: Text = {
 				text: req.body.text,
 				size: 50,
-				x: 700,
+				x: 650,
 				y: 100,
-				w: Math.floor(c.width / 4),
-				h: (c.height / 1.5),
+				w: Math.floor(c.width / 2.5),
+				h: (c.height / 2),
 				extras: "Bold",
 		};
 		const author: Text = {
 				text: req.body.author,
-				size: 30,
-				x: 1000,
+				size: 10,
+				x: 900,
 				y: 600,
-				w: 200,
-				h: 80,
+				w: 300,
+				h: 100,
 		};
 
     const box_info = quote(ctx, text, author, pfp, overlay);
