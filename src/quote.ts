@@ -17,6 +17,8 @@ export type Text = {
 	y: number,
 	w: number,
 	h: number,
+	max_font_size: number,
+	iterations: number,
 	extras?: string,
 };
 
@@ -97,7 +99,7 @@ export class TextArea {
 		* Resizing fonts to f
 		*
 		*/
-	public auto_font_resize(iterations: number) {
+	public auto_font_resize(iterations: number, max_font_size: number) {
 		const previousFont = this.ctx.font.toString();
 		const previousFontSizeMatch = previousFont.match(/(\d+)px/)?.[1];
 		const garbageStyle = previousFont.replace(`${previousFontSizeMatch}px`, "()");
@@ -114,18 +116,16 @@ export class TextArea {
 		let wrapped: WordCoords[][] = [];
 
 		// a bodge to avoid the bouncing font sizes (50 => 49 => 50 => 49 ...)
-		for (let i = 0; i < iterations; i++) {
-			/*
-			console.log(`fontsize: ${previousFontSize}, style: ${this.ctx.font}`);
-			console.log(`text_y_limit: ${absolute_text_y_limit}, text_y: ${absolute_y_limit}`);
-			console.log(`text_x_limit: ${absolute_text_x_limit}, text_x: ${absolute_x_limit}`);
-			*/
+		for (let i = 0; i < iterations; i++) { 
+			if (previousFontSize > max_font_size) {
+				break;
+			}
 
 			this.ctx.font = garbageStyle.replace("()", `${previousFontSize}px`);
 
 			// if the text box's Y limit exceeds the parent box's Y, make the font size smaller
 			if (absolute_text_y_limit >= absolute_y_limit) {
-				previousFontSize -= 3;
+				previousFontSize -= 5;
 				wrapped = this.wrap_words();
 				absolute_text_y_limit = this.absolute_text_y + this.relative_text_height;
 				continue;
@@ -137,7 +137,7 @@ export class TextArea {
 			// 				make the font size bigger
 			if (absolute_text_y_limit + 100 < absolute_y_limit 
 					&& absolute_text_x_limit < absolute_x_limit) {
-				previousFontSize += 3;
+				previousFontSize += 5;
 				wrapped = this.wrap_words();
 				absolute_text_x_limit = this.absolute_text_x + this.relative_text_width;
 				absolute_text_y_limit = this.absolute_text_y + this.relative_text_height;
@@ -255,9 +255,9 @@ export function quote(
 		
     ctx.font = `${text.extras ?? ""} ${text.size}px Times New Roman`;
     const main_text = new TextArea(ctx, text.text, text.x, text.y, text.w, text.h);
-		main_text.wrap_words();
-	  const main_text_coords = main_text.auto_font_resize(30);
-		main_text.adjust_text_for_centering(main_text_coords.wrapped);
+		const coords = main_text.wrap_words();
+		main_text.adjust_text_for_centering(coords);
+	  const main_text_coords = main_text.auto_font_resize(text.iterations, text.max_font_size);
 		for (const y_coord of main_text_coords.wrapped) {
 			for (const x_coord of y_coord) {
 				ctx.fillText(x_coord.text, x_coord.x, x_coord.y);
@@ -267,7 +267,7 @@ export function quote(
     ctx.font = `${author.extras ?? ""} ${author.size}px Times New Roman`;
     const author_text = new TextArea(ctx, author.text, author.x, author.y, author.w, author.h);
 		author_text.wrap_words();
-	  const author_text_coords = author_text.auto_font_resize(20);
+	  const author_text_coords = author_text.auto_font_resize(author.iterations, author.max_font_size);
 		author_text.adjust_text_for_centering(author_text_coords.wrapped);
 		for (const y_coord of author_text_coords.wrapped) {
 			for (const x_coord of y_coord) {

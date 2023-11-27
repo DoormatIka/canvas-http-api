@@ -25,9 +25,11 @@ app.post("/quote", async (req, res) => {
 		text: req.body.text,
 		size: 50,
 		x: 750,
-		y: 100,
+		y: 200,
 		w: Math.floor(c.width / 3),
-		h: (c.height / 2),
+		h: (c.height / 2.5),
+		max_font_size: 70,
+		iterations: 50,
 		extras: "Bold",
 	};
 	const author: Text = {
@@ -37,6 +39,8 @@ app.post("/quote", async (req, res) => {
 		y: 600,
 		w: 300,
 		h: 50,
+		max_font_size: 30,
+		iterations: 10,
 	};
 
 	const box_info = quote(ctx, text, author, pfp, overlay);
@@ -96,6 +100,8 @@ app.post("/quote/img", async (req, res) => {
 		y: 500,
 		w: 400,
 		h: 100,
+		max_font_size: 40,
+		iterations: 25,
 		extras: "Bold",
 	};
 	const author: Text = {
@@ -105,6 +111,8 @@ app.post("/quote/img", async (req, res) => {
 		y: 600,
 		w: 200,
 		h: 60,
+		max_font_size: 20,
+		iterations: 10,
 	}
 
 	const box_info = quoteAttachment(c, ctx, text, author, pfp, overlay, attachment);
