@@ -88,16 +88,16 @@ export class TextArea {
 			absolute_word_y_offset += global_text_metrics.actualBoundingBoxDescent / y_adjust;
 
 			coords.push(local_coords);
+			this.relative_text_height = absolute_word_y_offset.valueOf() - this.y;
 		}
-
-		this.relative_text_height = absolute_word_y_offset.valueOf() - this.y;
+		
 		return coords;
 	}
 	/*
 		* Resizing fonts to f
 		*
 		*/
-	public auto_font_resize() {
+	public auto_font_resize(iterations: number) {
 		const previousFont = this.ctx.font.toString();
 		const previousFontSizeMatch = previousFont.match(/(\d+)px/)?.[1];
 		const garbageStyle = previousFont.replace(`${previousFontSizeMatch}px`, "()");
@@ -114,7 +114,7 @@ export class TextArea {
 		let wrapped: WordCoords[][] = [];
 
 		// a bodge to avoid the bouncing font sizes (50 => 49 => 50 => 49 ...)
-		for (let i = 0; i < 30; i++) {
+		for (let i = 0; i < iterations; i++) {
 			/*
 			console.log(`fontsize: ${previousFontSize}, style: ${this.ctx.font}`);
 			console.log(`text_y_limit: ${absolute_text_y_limit}, text_y: ${absolute_y_limit}`);
@@ -241,13 +241,15 @@ export class TextArea {
 	}
 }
 
+// bad abstraction, what the fuck are you doing man
 export function writeText(
 		ctx: canvas.CanvasRenderingContext2D,
 		text: Text,
+		iterations: number,
 ) {
     const text_area = new TextArea(ctx, text.text, text.x, text.y, text.w, text.h);
 		text_area.wrap_words();
-	  const coords = text_area.auto_font_resize();
+	  const coords = text_area.auto_font_resize(iterations);
 		text_area.adjust_text_for_centering(coords.wrapped);
 		for (const y_coord of coords.wrapped) {
 			for (const x_coord of y_coord) {
@@ -269,10 +271,10 @@ export function quote(
 
     ctx.fillStyle = "#d9d9d9";
     ctx.font = `${text.extras ?? ""} ${text.size}px Times New Roman`;
-		const text_area = writeText(ctx, text);
+		const text_area = writeText(ctx, text, 50);
 
     ctx.font = `${author.extras ?? ""} ${author.size}px Times New Roman`;
-		const author_area = writeText(ctx, author);
+		const author_area = writeText(ctx, author, 10);
 
 		return {text_area, author_area};
 }
@@ -289,17 +291,30 @@ export function quoteAttachment(
     ctx.drawImage(pfp, 0, 0, 720, 718);
     ctx.drawImage(overlay, 0, 0);
     
-		quote(ctx, text, author, pfp, overlay)
+		const areas = quote(ctx, text, author, pfp, overlay)
 
-    const ratio = attachment.width / attachment.height;
+		const x = 1000;
+		const y = (c.height / 2) - 100;
+		const ratio = attachment.width / attachment.height;
     const width = 400;
-    const height = width / ratio;
+    const height = 400;
+		let adjusted_width = width.valueOf();
+		let adjusted_height = height.valueOf();
+
+		if (width / ratio > height) {
+			adjusted_width = height * ratio;
+		} else {
+			adjusted_height = width / ratio;
+		}
+
     ctx.globalAlpha = 0.9;
     ctx.drawImage(
         attachment, 
-        (c.width - width) - 110, 
-        (c.height - height) - 230, 
-        width, 
-        height);
+        x - (adjusted_width / 2), 
+        y - (adjusted_height / 2), 
+        adjusted_width, 
+        adjusted_height);
     ctx.globalAlpha = 1;
+
+		return areas;
 }
