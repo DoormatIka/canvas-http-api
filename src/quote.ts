@@ -137,7 +137,7 @@ export class TextArea {
 			// 				make the font size bigger
 			if (absolute_text_y_limit + 100 < absolute_y_limit 
 					&& absolute_text_x_limit < absolute_x_limit) {
-				previousFontSize += 1;
+				previousFontSize += 3;
 				wrapped = this.wrap_words();
 				absolute_text_x_limit = this.absolute_text_x + this.relative_text_width;
 				absolute_text_y_limit = this.absolute_text_y + this.relative_text_height;
@@ -241,24 +241,6 @@ export class TextArea {
 	}
 }
 
-// bad abstraction, what the fuck are you doing man
-export function writeText(
-		ctx: canvas.CanvasRenderingContext2D,
-		text: Text,
-		iterations: number,
-) {
-    const text_area = new TextArea(ctx, text.text, text.x, text.y, text.w, text.h);
-		text_area.wrap_words();
-	  const coords = text_area.auto_font_resize(iterations);
-		text_area.adjust_text_for_centering(coords.wrapped);
-		for (const y_coord of coords.wrapped) {
-			for (const x_coord of y_coord) {
-				ctx.fillText(x_coord.text, x_coord.x, x_coord.y);
-			}
-		}
-		return text_area;
-}
-
 export function quote(
     ctx: canvas.CanvasRenderingContext2D,
     text: Text,
@@ -270,13 +252,30 @@ export function quote(
     ctx.drawImage(overlay, 0, 0);
 
     ctx.fillStyle = "#d9d9d9";
+		
     ctx.font = `${text.extras ?? ""} ${text.size}px Times New Roman`;
-		const text_area = writeText(ctx, text, 50);
+    const main_text = new TextArea(ctx, text.text, text.x, text.y, text.w, text.h);
+		main_text.wrap_words();
+	  const main_text_coords = main_text.auto_font_resize(30);
+		main_text.adjust_text_for_centering(main_text_coords.wrapped);
+		for (const y_coord of main_text_coords.wrapped) {
+			for (const x_coord of y_coord) {
+				ctx.fillText(x_coord.text, x_coord.x, x_coord.y);
+			}
+		}
 
     ctx.font = `${author.extras ?? ""} ${author.size}px Times New Roman`;
-		const author_area = writeText(ctx, author, 10);
+    const author_text = new TextArea(ctx, author.text, author.x, author.y, author.w, author.h);
+		author_text.wrap_words();
+	  const author_text_coords = author_text.auto_font_resize(20);
+		author_text.adjust_text_for_centering(author_text_coords.wrapped);
+		for (const y_coord of author_text_coords.wrapped) {
+			for (const x_coord of y_coord) {
+				ctx.fillText(x_coord.text, x_coord.x, x_coord.y);
+			}
+		}
 
-		return {text_area, author_area};
+		return {main_text, author_text};
 }
 
 export function quoteAttachment(

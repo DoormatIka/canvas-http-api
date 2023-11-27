@@ -26,8 +26,8 @@ app.post("/quote", async (req, res) => {
 		size: 50,
 		x: 750,
 		y: 100,
-		w: Math.floor(c.width / 2.5),
-		h: (c.height / 1.5),
+		w: Math.floor(c.width / 3),
+		h: (c.height / 2),
 		extras: "Bold",
 	};
 	const author: Text = {
@@ -36,15 +36,15 @@ app.post("/quote", async (req, res) => {
 		x: 900,
 		y: 600,
 		w: 300,
-		h: 100,
+		h: 50,
 	};
 
 	const box_info = quote(ctx, text, author, pfp, overlay);
 	if (req.body.show_bounding) {
-		box_info.text_area.draw_bounding_box();
-		box_info.text_area.draw_true_bounding_box();
-		box_info.author_area.draw_bounding_box();
-		box_info.author_area.draw_true_bounding_box();
+		box_info.main_text.draw_bounding_box();
+		box_info.main_text.draw_true_bounding_box();
+		box_info.author_text.draw_bounding_box();
+		box_info.author_text.draw_true_bounding_box();
 	}
 
 	const buffer = c.toBuffer("image/jpeg", {
@@ -109,10 +109,10 @@ app.post("/quote/img", async (req, res) => {
 
 	const box_info = quoteAttachment(c, ctx, text, author, pfp, overlay, attachment);
 	if (req.body.show_bounding) {
-		box_info.text_area.draw_bounding_box();
-		box_info.text_area.draw_true_bounding_box();
-		box_info.author_area.draw_bounding_box();
-		box_info.author_area.draw_true_bounding_box();
+		box_info.main_text.draw_bounding_box();
+		box_info.main_text.draw_true_bounding_box();
+		box_info.author_text.draw_bounding_box();
+		box_info.author_text.draw_true_bounding_box();
 	}
 
 	const buffer = c.toBuffer("image/jpeg", {
