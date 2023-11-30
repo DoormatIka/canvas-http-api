@@ -36,16 +36,16 @@ app.post("/quote", async (req, res) => {
 		y: 200,
 		w: Math.floor(c.width / 3),
 		h: Math.floor(c.height / 2.5),
-		style: "Bold 50px Times New Roman",
+		style: `bold ${60 - Math.min(text_field.slice(0, 100).length / 2, 30)}pt Times New Roman`,
 	};
 	// 20 max
 	const author: Text = {
 		text: author_field.slice(0, 20),
-		x: 900,
-		y: 600,
+		x: 950,
+		y: 500,
 		w: 300,
-		h: 50,
-		style: "30px Times New Roman"
+		h: 150,
+		style: "40pt Times New Roman"
 	};
 
 	const box_info = quote(ctx, text, author, pfp, overlay);
@@ -111,12 +111,12 @@ app.post("/quote/img", async (req, res) => {
 		: await canvas.loadImage(source_image)
 
 	const text: Text = {
-		text: text_field.slice(0, 100),
+		text: text_field.slice(0, 60),
 		x: 800,
 		y: 500,
 		w: 400,
 		h: 100,
-		style: "Bold 30px Times New Roman",
+		style: "bold 30pt Times New Roman",
 	};
 	const author: Text = {
 		text: author_field.slice(0, 20),
@@ -124,7 +124,7 @@ app.post("/quote/img", async (req, res) => {
 		y: 600,
 		w: 200,
 		h: 60,
-		style: "20px Times New Roman",
+		style: "20pt Times New Roman",
 	}
 
 	const box_info = quoteAttachment(c, ctx, text, author, pfp, overlay, attachment);
@@ -136,8 +136,6 @@ app.post("/quote/img", async (req, res) => {
 			.draw_bounding_box()
 			.draw_true_bounding_box();
 	}
-	box_info.main_text.render();
-	box_info.author_text.render();
 
 	const buffer = c.toBuffer("image/jpeg", {
 		quality: 0.9,
