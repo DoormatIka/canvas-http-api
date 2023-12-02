@@ -36,7 +36,7 @@ app.post("/quote", async (req, res) => {
 		y: 200,
 		w: Math.floor(c.width / 3),
 		h: Math.floor(c.height / 2.5),
-		style: `bold ${60 - Math.min(text_field.slice(0, 100).length / 2, 30)}pt Times New Roman`,
+		style: `bold ${60 - Math.min(text_field.slice(0, 100).length / 1.5, 30)}pt Times New Roman`,
 	};
 	// 20 max
 	const author: Text = {
