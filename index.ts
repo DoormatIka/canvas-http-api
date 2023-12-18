@@ -47,8 +47,8 @@ app.post("/quote", async (req, res) => {
 		: await canvas.loadImage(Buffer.from(await getImage(avatar_url)));
 
 	// 100 max
-	const lower_limit = 10;
-	const highest_limit = 70;
+	const lower_limit = 25;
+	const highest_limit = 50;
 	const text_length_limit = limit_number(text_field.length / 3, lower_limit, highest_limit);
 	const text_normalized = normalize(text_length_limit, lower_limit, highest_limit);
 	const text_non_normalized = invert_denormalize(text_normalized, lower_limit, highest_limit);
