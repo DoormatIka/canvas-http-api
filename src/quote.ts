@@ -191,7 +191,7 @@ export class TextArea {
 
 function adjust_text(ctx: canvas.CanvasRenderingContext2D, text: Text) {
 	ctx.font = text.style ?? "";
-	ctx.fillStyle = text.color ?? "#d9d9d9";
+	ctx.fillStyle = text.color ?? "rgba(255, 255, 255, 150)";
 	const text_area = new TextArea(ctx, text.text, text.x, text.y, text.w, text.h)
 		.store_styles()
 		.wrap_words()
